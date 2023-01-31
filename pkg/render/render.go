@@ -2,6 +2,7 @@ package render
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -9,7 +10,10 @@ import (
 
 	"github.com/gjaubert/bookings-project/pkg/config"
 	"github.com/gjaubert/bookings-project/pkg/models"
+	"github.com/justinas/nosurf"
 )
+
+var functions = template.FuncMap{}
 
 var app *config.AppConfig
 
@@ -17,13 +21,14 @@ func NewTemplates(a *config.AppConfig) {
 	app = a
 }
 
-func AddDefaultData(td *models.TemplateData) *models.TemplateData {
-
+func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {
+	td.CSRFToken = nosurf.Token(r)
 	return td
 }
 
-func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
+func RenderTemplate(w http.ResponseWriter, r *http.Request, tmpl string, td *models.TemplateData) {
 	var tc map[string]*template.Template
+
 	if app.UseCache {
 		tc = app.TemplateCache
 	} else {
@@ -35,14 +40,14 @@ func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData)
 		log.Fatal("could not assign template")
 	}
 
-	buffer := new(bytes.Buffer)
-	td = AddDefaultData(td)
-	err := t.Execute(buffer, td)
-	if err != nil {
-		log.Println(err)
-	}
+	buf := new(bytes.Buffer)
 
-	_, err = buffer.WriteTo(w)
+	td = AddDefaultData(td, r)
+
+	_ = t.Execute(buf, td)
+	fmt.Println(td.CSRFToken)
+
+	_, err := buf.WriteTo(w)
 	if err != nil {
 		log.Println(err)
 	}
