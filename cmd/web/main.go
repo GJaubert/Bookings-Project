@@ -22,7 +22,21 @@ var app config.AppConfig
 
 func main() {
 	//Things to put in the session
+	err := run()
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	srv := &http.Server{
+		Addr:    PORT_NUMBER,
+		Handler: routes(&app),
+	}
+
+	err = srv.ListenAndServe()
+	log.Fatal(err)
+}
+
+func run() error {
 	gob.Register(models.Reservation{})
 	app.InProduction = false
 
@@ -37,7 +51,9 @@ func main() {
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("cannot create template cache")
+		return err
 	}
+
 	app.TemplateCache = tc
 	app.UseCache = false
 
@@ -47,19 +63,8 @@ func main() {
 	render.NewTemplates(&app)
 
 	fmt.Println("Starting app in port 8080")
-	// http.HandleFunc("/", handlers.Repo.Home)
-	// http.HandleFunc("/about", handlers.Repo.About)
 
-	// _ = http.ListenAndServe(":8080", nil)
-	srv := &http.Server{
-		Addr:    PORT_NUMBER,
-		Handler: routes(&app),
-	}
-
-	err = srv.ListenAndServe()
-	if err != nil {
-		log.Fatal(err)
-	}
+	return nil
 }
 
 /*
