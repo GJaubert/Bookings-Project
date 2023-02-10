@@ -7,39 +7,46 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/gjaubert/bookings-project/internal/config"
 	"github.com/gjaubert/bookings-project/internal/handlers"
 	"github.com/gjaubert/bookings-project/internal/models"
 	"github.com/gjaubert/bookings-project/internal/render"
-
-	"github.com/alexedwards/scs/v2"
 )
 
-const PORT_NUMBER = ":8080"
+const portNumber = ":8080"
 
-var session *scs.SessionManager
 var app config.AppConfig
+var session *scs.SessionManager
 
+// main is the main function
 func main() {
-	//Things to put in the session
 	err := run()
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	fmt.Println(fmt.Sprintf("Staring application on port %s", portNumber))
+
 	srv := &http.Server{
-		Addr:    PORT_NUMBER,
+		Addr:    portNumber,
 		Handler: routes(&app),
 	}
 
 	err = srv.ListenAndServe()
-	log.Fatal(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func run() error {
+	// what am I going to put in the session
 	gob.Register(models.Reservation{})
+
+	// change this to true when in production
 	app.InProduction = false
 
+	// set up the session
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
 	session.Cookie.Persist = true
@@ -61,28 +68,5 @@ func run() error {
 	handlers.NewHandlers(repo)
 
 	render.NewTemplates(&app)
-
-	fmt.Println("Starting app in port 8080")
-
 	return nil
 }
-
-/*
-func Divide(w http.ResponseWriter, r *http.Request) {
-	result, err := divideValues(100.0, 0.0)
-	if err != nil {
-		fmt.Fprintf(w, "Cannot divide by 0")
-		return
-	}
-	_, _ = fmt.Fprintf(w, "100 divided by 0 is %f\n", result)
-}
-
-func divideValues(x, y float32) (float32, error) {
-	if y <= 0 {
-		err := errors.New("cannot divide by zero")
-		return 0, err
-	}
-	result := x / y
-	return result, nil
-}
-*/
