@@ -50,7 +50,6 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmpl string, td *mod
 	td = AddDefaultData(td, r)
 
 	_ = t.Execute(buf, td)
-	fmt.Println(td.CSRFToken)
 
 	_, err := buf.WriteTo(w)
 	if err != nil {
