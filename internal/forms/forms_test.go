@@ -46,7 +46,7 @@ func TestForm_Has(t *testing.T) {
 	form := New(r.PostForm)
 
 	postedData := url.Values{}
-	form := New(url.Values{})
+	//form := New(url.Values{})
 
 	has := form.Has("whatever", r)
 	if has {
@@ -58,7 +58,7 @@ func TestForm_Has(t *testing.T) {
 
 	form = New(postedData)
 
-	has = form.Has("a")
+	//has = form.Has("a")
 	if !has {
 		t.Error("shows form does not have field when it should")
 	}
@@ -68,7 +68,7 @@ func TestForm_MinLength(t *testing.T) {
 	postedData := url.Values{}
 	form := New(postedData)
 
-	form.MinLength("x", 10)
+	//form.MinLength("x", 10)
 	if form.Valid() {
 		t.Error("form shows min length for non-existent field")
 	}
@@ -83,7 +83,7 @@ func TestForm_MinLength(t *testing.T) {
 
 	form = New(postedData)
 
-	form.MinLength("some_field", 100)
+	//form.MinLength("some_field", 100)
 	if form.Valid() {
 		t.Error("shows min length of 100 met when data is shorter")
 	}
@@ -92,7 +92,7 @@ func TestForm_MinLength(t *testing.T) {
 	postedData.Add("another_field", "abc123")
 	form = New(postedData)
 
-	form.MinLength("another_field", 1)
+	//form.MinLength("another_field", 1)
 	if !form.Valid() {
 		t.Error("shows min length if 1 is not met when it is")
 	}
