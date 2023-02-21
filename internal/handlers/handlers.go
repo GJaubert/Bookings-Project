@@ -7,21 +7,26 @@ import (
 	"net/http"
 
 	"github.com/gjaubert/bookings-project/internal/config"
+	"github.com/gjaubert/bookings-project/internal/driver"
 	"github.com/gjaubert/bookings-project/internal/forms"
 	"github.com/gjaubert/bookings-project/internal/helpers"
 	"github.com/gjaubert/bookings-project/internal/models"
 	"github.com/gjaubert/bookings-project/internal/render"
+	"github.com/gjaubert/bookings-project/internal/repository"
+	"github.com/gjaubert/bookings-project/internal/repository/dbrepo"
 )
 
 var Repo *Repository
 
 type Repository struct {
 	App *config.AppConfig
+	DB  repository.DatabaseRepo
 }
 
-func NewRepo(a *config.AppConfig) *Repository {
+func NewRepo(a *config.AppConfig, db *driver.DB) *Repository {
 	return &Repository{
 		App: a,
+		DB:  dbrepo.NewPostgresRepo(db.SQL, a),
 	}
 }
 
@@ -30,6 +35,7 @@ func NewHandlers(r *Repository) {
 }
 
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
+	m.DB.AllUsers()
 	render.RenderTemplate(w, r, "home.page.tmpl", &models.TemplateData{})
 }
 
