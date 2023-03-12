@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -16,6 +15,7 @@ import (
 	"github.com/gjaubert/bookings-project/internal/render"
 	"github.com/gjaubert/bookings-project/internal/repository"
 	"github.com/gjaubert/bookings-project/internal/repository/dbrepo"
+	"github.com/go-chi/chi"
 )
 
 var Repo *Repository
@@ -91,7 +91,13 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 
 	data := make(map[string]interface{})
 	data["rooms"] = rooms
-	fmt.Println(rooms)
+
+	res := models.Reservation{
+		CreatedAt: startDate,
+		EndDate:   endDate,
+	}
+
+	m.App.Session.Put(r.Context(), "reservation", res)
 
 	render.Template(w, r, "choose-room.page.tmpl", &models.TemplateData{
 		Data: data,
@@ -231,6 +237,25 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 	render.Template(w, r, "reservation-summary.page.tmpl", &models.TemplateData{
 		Data: data,
 	})
+}
+
+func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
+	roomID, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+	res, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+	if !ok {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	res.RoomID = roomID
+
+	m.App.Session.Put(r.Context(), "reservation", res)
+
+	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
 }
 
 /*	CreatedAt: ,
