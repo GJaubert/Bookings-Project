@@ -257,9 +257,3 @@ func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
 }
-
-/*	CreatedAt: ,
-	UpdatedAt :,
-	Room: ,
-	Reservation: ,
-	Restriction: ,*/
