@@ -23,3 +23,5 @@ To run the tests:
 The page should be accesible from port :8080
 
 Transactions with the database are not possible because the db has no public endpoint.
+
+The frontend of this page was made with bootstrap code examples.
