@@ -62,7 +62,7 @@ func Template(w http.ResponseWriter, r *http.Request, tmpl string, td *models.Te
 
 func CreateTemplateCache() (map[string]*template.Template, error) {
 	// myCache := make(map[string]*template.Template)
-	log.Println("Creating cache")
+	//log.Println("Creating cache")
 	myCache := map[string]*template.Template{}
 
 	pages, err := filepath.Glob(fmt.Sprintf("%s/*.page.tmpl", pathToTemplates))
