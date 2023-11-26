@@ -67,6 +67,7 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 
 	pages, err := filepath.Glob(fmt.Sprintf("%s/*.page.tmpl", pathToTemplates))
 	if err != nil {
+		log.Fatal("templates path not found")
 		return myCache, err
 	}
 
@@ -74,17 +75,20 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 		name := filepath.Base(page)
 		ts, err := template.New(name).Funcs(functions).ParseFiles(page)
 		if err != nil {
+			log.Fatal("can't parse files")
 			return myCache, err
 		}
 
 		matches, err := filepath.Glob(fmt.Sprintf("%s/*.layout.tmpl", pathToTemplates))
 		if err != nil {
+			log.Fatal("can't find matches")
 			return myCache, err
 		}
 
 		if len(matches) > 0 {
 			ts, err = ts.ParseGlob(fmt.Sprintf("%s/*.layout.tmpl", pathToTemplates))
 			if err != nil {
+				log.Fatal("no templates found when len > 0")
 				return myCache, err
 			}
 		}
